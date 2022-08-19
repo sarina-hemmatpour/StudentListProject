@@ -1,6 +1,9 @@
 package com.example.studentslistproject;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +31,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //toolbar
+        Toolbar toolbar=findViewById(R.id.toolbar_main);
+        setSupportActionBar(toolbar);
+        toolbar.setTitle(R.string.toolbar_title);
+
+
         readFromServer();
 
     }
@@ -43,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                         try {
 
                             JSONArray studentsJSONArray=new JSONArray(response);
-                            for (int i = 0; i < 10; i++) {
+                            for (int i = 0; i < 20; i++) {
                                 JSONObject studentJO=studentsJSONArray.getJSONObject(i);
                                 Student newStudent=new Student(studentJO.getInt("id"),
                                         studentJO.getString("first_name"),
@@ -52,6 +61,12 @@ public class MainActivity extends AppCompatActivity {
                                         studentJO.getInt("score"));
                                 students.add(newStudent);
                             }
+
+                            //recyclerview
+                            RecyclerView rvStudents=findViewById(R.id.rv_main_students);
+                            rvStudents.setLayoutManager(new LinearLayoutManager(MainActivity.this ,
+                                    RecyclerView.VERTICAL , false));
+                            rvStudents.setAdapter(new StudentAdaptor(students));
 
                         } catch (JSONException e) {
                             e.printStackTrace();

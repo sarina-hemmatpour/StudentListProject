@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">StudentsListProject</string>
+    <string name="main_add_student">add student</string>
+    <string name="toolbar_title">Students List</string>
 </resources>
