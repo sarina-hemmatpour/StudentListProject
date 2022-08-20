@@ -2,4 +2,8 @@
     <string name="app_name">StudentsListProject</string>
     <string name="main_add_student">add student</string>
     <string name="toolbar_title">Students List</string>
+    <string name="form_first_name">First Name</string>
+    <string name="form_last_name">Last Name</string>
+    <string name="form_course">Course</string>
+    <string name="form_score">Score</string>
 </resources>

@@ -5,15 +5,19 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +42,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         readFromServer();
+
+        ExtendedFloatingActionButton fabAdd=findViewById(R.id.fab_main_addStudent);
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, AddNewStudentFormActivity.class));
+            }
+        });
 
     }
 
@@ -89,6 +101,14 @@ public class MainActivity extends AppCompatActivity {
                 });
         requestQueue= Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(10000 , 3 , 2));
+        stringRequest.setTag(TAG);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        requestQueue.cancelAll(TAG);
     }
 }
