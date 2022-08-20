@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -29,12 +31,16 @@ public class MainActivity extends AppCompatActivity {
 
     public static ArrayList<Student> students=new ArrayList<>();
     private RequestQueue requestQueue;
+    LottieAnimationView imgLoading;
     private static final String TAG = "MainActivityTAG";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //loading
+        imgLoading=findViewById(R.id.img_main_loading);
 
+        imgLoading.setRepeatCount(Animation.INFINITE);
         //toolbar
         Toolbar toolbar=findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
@@ -73,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
                                         studentJO.getInt("score"));
                                 students.add(newStudent);
                             }
+
+                            imgLoading.setVisibility(View.GONE);
 
                             //recyclerview
                             RecyclerView rvStudents=findViewById(R.id.rv_main_students);
