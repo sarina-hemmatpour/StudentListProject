@@ -54,6 +54,7 @@ public class AddNewStudentFormActivity extends AppCompatActivity {
         fabSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 
                 if(etFirstName.length()>0 && etLastName.length()>0
                         && etCourse.length()>0 && etScore.length()>0)

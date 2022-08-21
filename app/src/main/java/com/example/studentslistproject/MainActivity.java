@@ -31,6 +31,9 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    /*
+    use GSON to automatically convert java to JASON or JSON to jave
+     */
 
     LottieAnimationView imgLoading;
     private static final String TAG = "MainActivityTAG";

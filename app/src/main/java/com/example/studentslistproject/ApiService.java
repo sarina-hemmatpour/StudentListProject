@@ -11,6 +11,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,16 +26,22 @@ public class ApiService {
     private static RequestQueue requestQueue;
     private static final String BASE_URL ="http://expertdevelopers.ir/api/v1/";
     private String REQUEST_TAG;
+    private Gson gson;
 
     public ApiService(Context context , String requestTag) {
         if (requestQueue==null){
             requestQueue= Volley.newRequestQueue(context.getApplicationContext());
         }
         REQUEST_TAG=requestTag;
+        gson=new Gson();
     }
 
     public void saveStudents(String firstName , String lastname , String course , int score , SaveStudentCallback callback)
     {
+        /*creating JSON object by using GSON =>
+        JSONObject joStudent=gson.toJson(student)
+
+         */
 
         //creating JSONObject to send
         JSONObject joStudent=new JSONObject();
@@ -56,6 +64,9 @@ public class ApiService {
                     public void onResponse(JSONObject response) {
                         Log.i(TAG, "onResponse: ");
 
+                        Student newStudent=gson.fromJson(response.toString() , Student.class);
+
+                        /* we can use GSON instead of all these codes
                         try {
                             Student newStudent=new Student(response.getInt("id") ,
                                     response.getString("first_name") ,
@@ -64,13 +75,14 @@ public class ApiService {
                                     response.getInt("score"));
 
 
-                            //result cal back
-                            // chon tu ye interface e digas nemitunim student ro return konim
-                            callback.onSuccess(newStudent);
-
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                         */
+
+                        //result cal back
+                        // chon tu ye interface e digas nemitunim student ro return konim
+                        callback.onSuccess(newStudent);
 
                     }
                 },
@@ -96,6 +108,11 @@ public class ApiService {
                     @Override
                     public void onResponse(String response) {
 
+                        //tabdile json be yek class generic ba estefade az GSON =>
+                        ArrayList<Student> students=gson.fromJson(response ,
+                                new TypeToken<ArrayList<Student>>(){}.getType());
+
+                        /*
                         ArrayList<Student> students=new ArrayList<>();
                         try {
 
@@ -110,13 +127,14 @@ public class ApiService {
                                 students.add(newStudent);
                             }
 
-                            //***************
-                            callback.onSuccess(students);
-
 
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+
+                         */
+                        //***************
+                        callback.onSuccess(students);
                         Log.i(TAG, "onResponse: "+students);
 
                     }

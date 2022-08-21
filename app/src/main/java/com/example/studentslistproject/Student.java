@@ -3,7 +3,14 @@ package com.example.studentslistproject;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Student implements Parcelable {
+    /*
+    agar esme moteqayer ha ba api server yeki nabud az in estefade kon =>
+    @SerializedName("id")
+     */
+
     private int id;
     private String first_name;
     private String last_name;
