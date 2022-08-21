@@ -54,11 +54,11 @@ public class AddNewStudentFormActivity extends AppCompatActivity {
         fabSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                fabSave.setEnabled(false);
+                
                 if(etFirstName.length()>0 && etLastName.length()>0
                         && etCourse.length()>0 && etScore.length()>0)
                 {
+                    fabSave.setEnabled(false);
                     apiService.saveStudents(etFirstName.getText().toString().trim(),
                             etLastName.getText().toString().trim(),
                             etCourse.getText().toString().trim(),
@@ -80,6 +80,9 @@ public class AddNewStudentFormActivity extends AppCompatActivity {
                                 }
                             });
 
+                }
+                else {
+                    Toast.makeText(AddNewStudentFormActivity.this, "Complete all the fields", Toast.LENGTH_SHORT).show();
                 }
 
 
