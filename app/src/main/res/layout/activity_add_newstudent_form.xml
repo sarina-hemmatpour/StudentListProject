@@ -85,5 +85,6 @@
         android:text="save"
         app:icon="@drawable/ic_baseline_done_24"
         android:layout_gravity="center_horizontal|bottom"
+        android:id="@+id/fab_form_save"
         android:layout_marginBottom="24dp"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

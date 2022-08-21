@@ -66,4 +66,10 @@ public class StudentAdaptor extends RecyclerView.Adapter<StudentAdaptor.StudentV
             tvFullName.setText(student.getFirst_name().trim() + " " + student.getLast_name().trim());
         }
     }
+
+    public void addNewStudent(Student student)
+    {
+        students.add(0,student);
+        notifyItemInserted(0);
+    }
 }

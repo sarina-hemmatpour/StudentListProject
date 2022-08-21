@@ -1,5 +1,6 @@
 package com.example.studentslistproject;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,10 +30,13 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static ArrayList<Student> students=new ArrayList<>();
+
     private RequestQueue requestQueue;
     LottieAnimationView imgLoading;
     private static final String TAG = "MainActivityTAG";
+    private static final Integer ADD_NEW_STUDENT_RESULT_CODED=1001;
+    RecyclerView rvStudents;
+    StudentAdaptor adaptorStudent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, AddNewStudentFormActivity.class));
+                startActivityForResult(new Intent(MainActivity.this, AddNewStudentFormActivity.class) ,ADD_NEW_STUDENT_RESULT_CODED );
             }
         });
 
@@ -67,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
 
+                        ArrayList<Student> students=new ArrayList<>();
                         try {
 
                             JSONArray studentsJSONArray=new JSONArray(response);
@@ -83,10 +88,11 @@ public class MainActivity extends AppCompatActivity {
                             imgLoading.setVisibility(View.GONE);
 
                             //recyclerview
-                            RecyclerView rvStudents=findViewById(R.id.rv_main_students);
+                            rvStudents=findViewById(R.id.rv_main_students);
                             rvStudents.setLayoutManager(new LinearLayoutManager(MainActivity.this ,
                                     RecyclerView.VERTICAL , false));
-                            rvStudents.setAdapter(new StudentAdaptor(students));
+                            adaptorStudent=new StudentAdaptor(students);
+                            rvStudents.setAdapter(adaptorStudent);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -118,5 +124,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         requestQueue.cancelAll(TAG);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+
+        if(requestCode==ADD_NEW_STUDENT_RESULT_CODED &&
+            resultCode==RESULT_OK && adaptorStudent!=null &&data!=null){
+
+            Student newStudent=data.getParcelableExtra("student");
+            adaptorStudent.addNewStudent(newStudent);
+            rvStudents.smoothScrollToPosition(0);
+
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+
     }
 }
