@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
+import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.DefaultRetryPolicy;
@@ -31,16 +32,19 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
 
-    private RequestQueue requestQueue;
     LottieAnimationView imgLoading;
     private static final String TAG = "MainActivityTAG";
     private static final Integer ADD_NEW_STUDENT_RESULT_CODED=1001;
     RecyclerView rvStudents;
     StudentAdaptor adaptorStudent;
+
+    private ApiService apiService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        apiService=new ApiService(this ,TAG);
+
         //loading
         imgLoading=findViewById(R.id.img_main_loading);
 
@@ -65,65 +69,32 @@ public class MainActivity extends AppCompatActivity {
 
     private void readFromServer()
     {
-        StringRequest stringRequest=new StringRequest(Request.Method.GET,
-                "http://expertdevelopers.ir/api/v1/experts/student",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
+        apiService.getStudents(new ApiService.GetStudentCallback() {
+            @Override
+            public void onSuccess(ArrayList<Student> students) {
+                imgLoading.setVisibility(View.GONE);
 
-                        ArrayList<Student> students=new ArrayList<>();
-                        try {
+                //recyclerview
+                rvStudents=findViewById(R.id.rv_main_students);
+                rvStudents.setLayoutManager(new LinearLayoutManager(MainActivity.this ,
+                        RecyclerView.VERTICAL , false));
+                adaptorStudent=new StudentAdaptor(students);
+                rvStudents.setAdapter(adaptorStudent);
+            }
 
-                            JSONArray studentsJSONArray=new JSONArray(response);
-                            for (int i = 0; i < 20; i++) {
-                                JSONObject studentJO=studentsJSONArray.getJSONObject(i);
-                                Student newStudent=new Student(studentJO.getInt("id"),
-                                        studentJO.getString("first_name"),
-                                        studentJO.getString("last_name"),
-                                        studentJO.getString("course"),
-                                        studentJO.getInt("score"));
-                                students.add(newStudent);
-                            }
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(MainActivity.this, "خطا", Toast.LENGTH_SHORT).show();
+            }
+        });
 
-                            imgLoading.setVisibility(View.GONE);
-
-                            //recyclerview
-                            rvStudents=findViewById(R.id.rv_main_students);
-                            rvStudents.setLayoutManager(new LinearLayoutManager(MainActivity.this ,
-                                    RecyclerView.VERTICAL , false));
-                            adaptorStudent=new StudentAdaptor(students);
-                            rvStudents.setAdapter(adaptorStudent);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        Log.i(TAG, "onResponse: "+students);
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.i(TAG, "onErrorResponse: ");
-                        /*
-                        it is not permitted to send requests to hosts without SSL (http)
-                        it has to be https
-                        so add this line to the application part of manifest file =>
-                        android:usesCleartextTraffic="true"
-                         */
-                    }
-                });
-        requestQueue= Volley.newRequestQueue(this);
-        requestQueue.add(stringRequest);
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(10000 , 3 , 2));
-        stringRequest.setTag(TAG);
 
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        requestQueue.cancelAll(TAG);
+        apiService.cancel();
     }
 
     @Override

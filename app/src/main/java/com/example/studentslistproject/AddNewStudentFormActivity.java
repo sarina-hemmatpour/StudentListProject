@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -25,13 +26,14 @@ import org.json.JSONObject;
 public class AddNewStudentFormActivity extends AppCompatActivity {
 
     private static final String TAG = "FormActivity";
-    RequestQueue requestQueue;
+    private ApiService apiService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_newstudent_form);
 
-        requestQueue= Volley.newRequestQueue(this);
+        //api
+        apiService=new ApiService(this , TAG);
 
         Toolbar toolbar=findViewById(R.id.toolbar_form);
         setSupportActionBar(toolbar);
@@ -53,62 +55,42 @@ public class AddNewStudentFormActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                fabSave.setEnabled(false);
                 if(etFirstName.length()>0 && etLastName.length()>0
                         && etCourse.length()>0 && etScore.length()>0)
                 {
-                    //creating JSONObject to send
-                    JSONObject joStudent=new JSONObject();
-                    try {
-                        joStudent.put("first_name" , etFirstName.getText().toString().trim());
-                        joStudent.put("last_name" , etLastName.getText().toString().trim());
-                        joStudent.put("course" , etCourse.getText().toString().trim());
-                        joStudent.put("score" , etScore.getText().toString().trim());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-
-                    //posting
-                    JsonObjectRequest request=new JsonObjectRequest(Request.Method.POST,
-                            "http://expertdevelopers.ir/api/v1/experts/student",
-                            joStudent,
-                            new Response.Listener<JSONObject>() {
+                    apiService.saveStudents(etFirstName.getText().toString().trim(),
+                            etLastName.getText().toString().trim(),
+                            etCourse.getText().toString().trim(),
+                            Integer.parseInt(etScore.getText().toString().trim()),
+                            new ApiService.SaveStudentCallback() {
                                 @Override
-                                public void onResponse(JSONObject response) {
-                                    Log.i(TAG, "onResponse: ");
+                                public void onSuccess(Student student) {
+                                    Intent intent=new Intent();
+                                    intent.putExtra("student" , student);
 
-                                    try {
-                                        Student newStudent=new Student(response.getInt("id") ,
-                                                response.getString("first_name") ,
-                                                response.getString("last_name"),
-                                                response.getString("course") ,
-                                                response.getInt("score"));
-                                        Intent intent=new Intent();
-                                        intent.putExtra("student" , newStudent);
-
-                                        setResult(RESULT_OK , intent);
-                                        finish();
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-
+                                    setResult(RESULT_OK , intent);
+                                    finish();
                                 }
-                            },
-                            new Response.ErrorListener() {
+
                                 @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Log.i(TAG, "onErrorResponse: " + error.toString());
+                                public void onError(VolleyError error) {
+                                    Toast.makeText(AddNewStudentFormActivity.this, "خطا", Toast.LENGTH_SHORT).show();
+                                    fabSave.setEnabled(true);
                                 }
                             });
 
-                    //sending
-                    requestQueue.add(request);
                 }
 
 
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        apiService.cancel();
     }
 
     @Override
