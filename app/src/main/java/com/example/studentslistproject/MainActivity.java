@@ -17,7 +17,6 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -28,6 +27,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,12 +44,15 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView rvStudents;
     StudentAdaptor adaptorStudent;
 
+
+    private RetrofitApiService retrofitApiService;
     private ApiService apiService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         apiService=new ApiService(this ,TAG);
+        retrofitApiService = new RetrofitApiService();
 
         //loading
         imgLoading=findViewById(R.id.img_main_loading);
@@ -58,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setTitle(R.string.toolbar_title);
 
 
-        readFromServer();
+//        readFromServer(); //Volley
+        readFromServerRetrofit(); //Retrofit
 
         ExtendedFloatingActionButton fabAdd=findViewById(R.id.fab_main_addStudent);
         fabAdd.setOnClickListener(new View.OnClickListener() {
@@ -92,6 +99,28 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private void readFromServerRetrofit()
+    {
+        retrofitApiService.getStudent(new RetrofitApiService.GetStudentCallBackR() {
+            @Override
+            public void onSuccess(ArrayList<Student> students) {
+                imgLoading.setVisibility(View.GONE);
+
+                //recyclerview
+                rvStudents=findViewById(R.id.rv_main_students);
+                rvStudents.setLayoutManager(new LinearLayoutManager(MainActivity.this ,
+                        RecyclerView.VERTICAL , false));
+                adaptorStudent=new StudentAdaptor(students);
+                rvStudents.setAdapter(adaptorStudent);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(MainActivity.this, "خطا", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

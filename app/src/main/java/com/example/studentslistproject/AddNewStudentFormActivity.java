@@ -27,6 +27,7 @@ public class AddNewStudentFormActivity extends AppCompatActivity {
 
     private static final String TAG = "FormActivity";
     private ApiService apiService;
+    private RetrofitApiService retrofitApiService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +35,7 @@ public class AddNewStudentFormActivity extends AppCompatActivity {
 
         //api
         apiService=new ApiService(this , TAG);
+        retrofitApiService=new RetrofitApiService();
 
         Toolbar toolbar=findViewById(R.id.toolbar_form);
         setSupportActionBar(toolbar);
@@ -60,27 +62,18 @@ public class AddNewStudentFormActivity extends AppCompatActivity {
                         && etCourse.length()>0 && etScore.length()>0)
                 {
                     fabSave.setEnabled(false);
-                    apiService.saveStudents(etFirstName.getText().toString().trim(),
+
+//                    postToServerVolley(etFirstName.getText().toString().trim(),
+//                            etLastName.getText().toString().trim(),
+//                            etCourse.getText().toString().trim(),
+//                            Integer.parseInt(etScore.getText().toString().trim()));  //volley
+
+                    postToServerRetrofit(etFirstName.getText().toString().trim(),
                             etLastName.getText().toString().trim(),
                             etCourse.getText().toString().trim(),
-                            Integer.parseInt(etScore.getText().toString().trim()),
-                            new ApiService.SaveStudentCallback() {
-                                @Override
-                                public void onSuccess(Student student) {
-                                    Intent intent=new Intent();
-                                    intent.putExtra("student" , student);
+                            Integer.parseInt(etScore.getText().toString().trim())); //retrofit
 
-                                    setResult(RESULT_OK , intent);
-                                    finish();
-                                }
-
-                                @Override
-                                public void onError(VolleyError error) {
-                                    Toast.makeText(AddNewStudentFormActivity.this, "خطا", Toast.LENGTH_SHORT).show();
-                                    fabSave.setEnabled(true);
-                                }
-                            });
-
+                    fabSave.setEnabled(true); //error
                 }
                 else {
                     Toast.makeText(AddNewStudentFormActivity.this, "Complete all the fields", Toast.LENGTH_SHORT).show();
@@ -89,6 +82,49 @@ public class AddNewStudentFormActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void postToServerVolley(String firstName , String lastname , String course , int score)
+    {
+        apiService.saveStudents(firstName,
+                lastname,
+                course,
+                score,
+                new ApiService.SaveStudentCallback() {
+                    @Override
+                    public void onSuccess(Student student) {
+                        Intent intent=new Intent();
+                        intent.putExtra("student" , student);
+
+                        setResult(RESULT_OK , intent);
+                        finish();
+                    }
+
+                    @Override
+                    public void onError(VolleyError error) {
+                        Toast.makeText(AddNewStudentFormActivity.this, "خطا", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void postToServerRetrofit(String firstName , String lastname , String course , int score)
+    {
+        retrofitApiService.saveStudent(firstName, lastname, course, score,
+                new RetrofitApiService.SaveStudentCallbackR() {
+                    @Override
+                    public void onSuccess(Student student) {
+                        Intent intent=new Intent();
+                        intent.putExtra("student" , student);
+
+                        setResult(RESULT_OK , intent);
+                        finish();
+                    }
+
+                    @Override
+                    public void onError(Exception error) {
+                        Toast.makeText(AddNewStudentFormActivity.this, "خطا", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override
